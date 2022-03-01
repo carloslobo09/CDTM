@@ -1,0 +1,60 @@
+
+CREATE TABLE tabletrigger(
+                id_reg integer,
+                nombre varchar(60) ,
+                dni bigint(8),
+                fecha_nacimiento date,
+                domicilio varchar(50),
+                telefono varchar(16),
+                origen varchar(50),
+                destino varchar(50),
+                cargofuncion varchar(50),
+                descripcion varchar(50),
+                exceptuado integer,
+                kilometro integer,
+                fechaingreso date,
+                horaingreso time,
+                fechaegreso date,
+                horaegreso time,
+                modelo varchar(50),
+                patente varchar(10),
+                estado tinyint(1),
+    			fueeliminado varchar(3),
+    			fechaeliminado date,
+    			horaeliminado time);
+
+
+CREATE TABLE triggermod(
+                id_reg integer,
+                nombreOLD varchar(60),
+    			nombreNEW varchar(60),
+                dniOLD bigint(8),
+    			dniNEW bigint(8),
+                domicilioOLD varchar(50),
+    			domicilioNEW varchar(50),
+                telefonoOLD varchar(16),
+    			telefonoNEW varchar(16),
+                patenteOLD varchar(10),
+    			patenteNEW varchar(10),
+    			fechaedicion date,
+    			horaedicion time
+);
+
+CREATE OR REPLACE TRIGGER triginsert AFTER INSERT ON registros
+FOR EACH ROW
+INSERT INTO tabletrigger (id_reg,nombre,dni,fecha_nacimiento,domicilio,telefono,origen,destino,cargofuncion,descripcion,exceptuado,kilometro,fechaingreso,horaingreso,fechaegreso,horaegreso,modelo,patente,estado,fueeliminado)
+values(NEW.id_reg,NEW.nombre,NEW.dni,NEW.fecha_nacimiento,new.domicilio,new.telefono,new.origen,new.destino,new.cargofuncion,new.descripcion,new.exceptuado,new.kilometro,new.fechaingreso,new.horaingreso,new.fechaegreso,new.horaegreso,new.modelo,new.patente,new.estado,"NO");
+
+
+
+
+CREATE OR REPLACE TRIGGER trigdelete BEFORE DELETE ON registros
+FOR EACH ROW
+UPDATE tabletrigger SET fueeliminado="SI",fechaeliminado= NOW(), horaeliminado= NOW() WHERE id_reg=old.id_reg;
+
+
+
+CREATE OR REPLACE TRIGGER triginsert AFTER UPDATE ON registros
+FOR EACH ROW
+INSERT INTO triggermod (id_reg,nombreOLD,nombreNEW,dniOLD,dniNEW,domicilioOLD,domicilioNEW,telefonoOLD,telefonoNEW,patenteOLD,patenteNEW,fechaedicion,horaedicion)
+values(OLD.id_reg,OLD.nombre,NEW.nombre,OLD.dni,NEW.dni,OLD.domicilio,NEW.domicilio,OLD.telefono,NEW.telefono,OLD.patente,NEW.patente,NOW(),NOW());
